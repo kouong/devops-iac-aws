@@ -1,0 +1,28 @@
+# This tells AWS CodeDeploy which version of the appspec format we're using
+version: 0.0
+
+# This specifies that our app will run on a Linux server
+os: linux
+
+# This section tells CodeDeploy where to copy our application files
+files:
+  # Copy everything from our source code (/) to this folder on the server
+  - source: /
+    destination: /home/ec2-user/simple-webapp
+
+# These are scripts that run at different stages of deployment
+hooks:
+  # This script runs first to stop any existing version of our app
+  ApplicationStop:
+    - location: scripts/stop_server.sh
+      timeout: 20 # Give it 20 seconds to stop, then fail if not done
+
+  # This script runs second to install any needed software/dependencies
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 300 # Give it 5 minutes to install everything
+
+  # This script runs last to start our new app version
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 60 # Give it 1 minute to start, then fail if not done
