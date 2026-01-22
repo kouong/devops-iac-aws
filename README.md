@@ -1,139 +1,157 @@
-# AWS CI/CD Pipeline Setup Guide
+# Guide de configuration d’un pipeline CI/CD AWS
 
-This guide will help you deploy a Python web application to AWS with automatic deployments from GitHub. Every time you push code to GitHub, it will automatically build and deploy to your EC2 server.
-
----
-
-## 📋 What You'll Need
-
-- A computer with internet connection
-- An AWS account (free tier is fine)
-- A GitHub account
-- About 30-45 minutes
+Ce guide va t’aider à déployer une application web Python sur AWS avec des déploiements automatiques depuis GitHub. À chaque fois que tu pushes du code sur GitHub, il va automatiquement builder et déployer sur ton serveur EC2.
 
 ---
 
-## 🚀 Step 1: Install Required Software
+## Ce dont tu auras besoin
 
-### 1.1 Install Terraform
+* Un ordinateur avec une connexion Internet
+* Un compte AWS (le free tier suffit)
+* Un compte GitHub
+* Environ 30–45 minutes
 
-Terraform is the tool that creates AWS resources automatically.
+---
 
-**Windows:**
-1. Download Terraform from: https://www.terraform.io/downloads
-2. Extract the `.zip` file to `C:\terraform`
-3. Add to Windows PATH:
-   - Press `Windows Key`, search for "Environment Variables"
-   - Click "Edit the system environment variables"
-   - Click "Environment Variables" button
-   - Under "System variables", find and select "Path", click "Edit"
-   - Click "New" and add: `C:\terraform`
-   - Click "OK" on all windows
-4. Open a **new** PowerShell window and verify:
-   ```powershell
-   terraform version
-   ```
-   Notes: Alternatively you can use scoop for installing terraform https://scoop.sh/#/
+## Étape 1 : Installer les logiciels requis
 
-**Mac:**
-```bash
+### 1.1 Installer Terraform
+
+Terraform est l’outil qui crée automatiquement les ressources AWS.
+
+**Windows :**
+
+1. Télécharger Terraform depuis : [https://www.terraform.io/downloads](https://www.terraform.io/downloads)
+2. Extraire le fichier `.zip` vers `C:\terraform`
+3. Ajouter au PATH Windows :
+
+   * Appuyer sur `Windows Key`, rechercher « Environment Variables »
+   * Cliquer sur « Edit the system environment variables »
+   * Cliquer sur le bouton « Environment Variables »
+   * Dans « System variables », trouver et sélectionner « Path », puis cliquer « Edit »
+   * Cliquer « New » et ajouter : `C:\terraform`
+   * Cliquer sur « OK » dans toutes les fenêtres
+4. Ouvrir une nouvelle fenêtre PowerShell et vérifier :
+
+```
+terraform version
+```
+
+**Notes :** alternativement tu peux utiliser scoop pour installer terraform [https://scoop.sh/#/](https://scoop.sh/#/)
+
+**Mac :**
+
+```
 brew install terraform
 ```
 
-**Linux:**
-```bash
+**Linux :**
+
+```
 sudo apt-get update
 sudo apt-get install terraform
 ```
 
-**Notes**!!!: To make things simpler I recommend to use scoop for installing terraform and git (or anything on windows if available on scoop) https://scoop.sh/#/
+**Notes !!! :** pour simplifier, je recommande d’utiliser scoop pour installer terraform et git (ou n’importe quoi sous Windows si disponible sur scoop) [https://scoop.sh/#/](https://scoop.sh/#/)
 
-### 1.2 Install Git (if not already installed)
+### 1.2 Installer Git (si pas déjà installé)
 
-**Windows:** Download from https://git-scm.com/download/win
+**Windows :** télécharger depuis [https://git-scm.com/download/win](https://git-scm.com/download/win)
 
-**Mac:**
-```bash
+**Mac :**
+
+```
 brew install git
 ```
 
-**Linux:**
-```bash
+**Linux :**
+
+```
 sudo apt-get install git
 ```
 
-Verify installation:
-```bash
+Vérifier l’installation :
+
+```
 git --version
 ```
 
 ---
 
-## 🔐 Step 2: Set Up AWS Credentials
+## Étape 2 : Configurer les identifiants AWS
 
-### 2.1 Create an AWS Access Key
+### 2.1 Créer une clé d’accès AWS
 
-1. Log in to your AWS Console: https://console.aws.amazon.com
-2. Click your username (top-right) → **Security credentials**
-3. Scroll down to **Access keys** section
-4. Click **Create access key**
-5. Select **Command Line Interface (CLI)**
-6. Check the confirmation box and click **Next**
-7. Click **Create access key**
-8. **IMPORTANT:** Copy both:
-   - Access key ID (looks like: `AKIAIOSFODNN7EXAMPLE`)
-   - Secret access key (looks like: `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`)
+1. Se connecter à la console AWS : [https://console.aws.amazon.com](https://console.aws.amazon.com)
+2. Cliquer sur ton nom d’utilisateur (en haut à droite) → Security credentials
+3. Descendre jusqu’à la section Access keys
+4. Cliquer Create access key
+5. Sélectionner Command Line Interface (CLI)
+6. Cocher la case de confirmation et cliquer Next
+7. Cliquer Create access key
+8. **IMPORTANT :** copier les deux :
 
-### 2.2 Configure AWS Credentials on Your Computer
+   * Access key ID (ressemble à : `AKIAIOSFODNN7EXAMPLE`)
+   * Secret access key (ressemble à : `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`)
 
-**Option A: Using AWS Credentials File (RECOMMENDED)**
+### 2.2 Configurer les identifiants AWS sur ton ordinateur
 
-1. Create the `.aws` folder in your home directory:
+**Option A : utiliser le fichier AWS Credentials (RECOMMANDÉ)**
 
-   **Windows (PowerShell):**
-   ```powershell
+1. Créer le dossier `.aws` dans ton répertoire utilisateur :
+
+   **Windows (PowerShell) :**
+
+   ```
    New-Item -Path "$env:USERPROFILE\.aws" -ItemType Directory -Force
    ```
 
-   **Mac/Linux:**
-   ```bash
+   **Mac/Linux :**
+
+   ```
    mkdir -p ~/.aws
    ```
 
-2. Create a `credentials` file:
+2. Créer un fichier `credentials` :
 
-   **Windows (PowerShell):**
-   ```powershell
+   **Windows (PowerShell) :**
+
+   ```
    notepad "$env:USERPROFILE\.aws\credentials"
    ```
 
-   **Mac/Linux:**
-   ```bash
+   **Mac/Linux :**
+
+   ```
    nano ~/.aws/credentials
    ```
 
-3. Add your credentials (replace with your actual keys):
+3. Ajouter tes identifiants (remplacer par tes vraies clés) :
+
    ```
    [default]
    aws_access_key_id = AKIAIOSFODNN7EXAMPLE
    aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
    ```
 
-4. Save and close the file
-   - **Windows:** Click File → Save, then close Notepad
-   - **Mac/Linux:** Press `Ctrl+O`, `Enter`, then `Ctrl+X`
+4. Sauvegarder et fermer le fichier
 
-**Option B: Using Environment Variables**
+   * Windows : Click File → Save, puis fermer Notepad
+   * Mac/Linux : appuyer sur `Ctrl+O`, `Enter`, puis `Ctrl+X`
 
-**Windows (PowerShell):**
-```powershell
+**Option B : utiliser les variables d’environnement**
+
+**Windows (PowerShell) :**
+
+```
 $env:AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
 $env:AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 $env:AWS_DEFAULT_REGION="us-east-1"
 ```
 
-**Mac/Linux (Bash):**
-```bash
+**Mac/Linux (Bash) :**
+
+```
 export AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
 export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 export AWS_DEFAULT_REGION="us-east-1"
@@ -141,158 +159,165 @@ export AWS_DEFAULT_REGION="us-east-1"
 
 ---
 
-## 🔑 Step 3: Create an EC2 Key Pair
+## Étape 3 : Créer une paire de clés EC2
 
-This allows you to connect to your server if needed.
+Cela te permet de te connecter à ton serveur si besoin.
 
-1. Go to AWS Console: https://console.aws.amazon.com/ec2
-2. Make sure you're in the **us-east-1** region (check top-right corner)
-3. In the left menu, click **Key Pairs** (under "Network & Security")
-4. Click **Create key pair**
-5. Name it: `ec2-key-pair`
-6. Key pair type: **RSA**
-7. Private key format: `.pem` (Mac/Linux) or `.ppk` (Windows)
-8. Click **Create key pair**
-9. Save the downloaded file in a safe place
+1. Aller sur la console AWS : [https://console.aws.amazon.com/ec2](https://console.aws.amazon.com/ec2)
+2. Vérifier que tu es dans la région **us-east-1** (regarder en haut à droite)
+3. Dans le menu de gauche, cliquer Key Pairs (sous « Network & Security »)
+4. Cliquer Create key pair
+5. Nommer : `ec2-key-pair`
+6. Type de paire de clés : RSA
+7. Format de clé privée : `.pem` (Mac/Linux) ou `.ppk` (Windows)
+8. Cliquer Create key pair
+9. Sauvegarder le fichier téléchargé dans un endroit sûr
 
 ---
 
-## 📁 Step 4: Fork and Clone This Repository
+## Étape 4 : Fork et cloner ce dépôt
 
-### 4.1 Fork the Repository
+### 4.1 Fork du dépôt
 
-1. Go to: https://github.com/kouong/aws-group-yde
-2. Click the **Fork** button (top-right)
-3. This creates a copy in your GitHub account
+1. Aller sur : [https://github.com/kouong/aws-group-yde](https://github.com/kouong/aws-group-yde)
+2. Cliquer sur le bouton Fork (en haut à droite)
+3. Cela crée une copie dans ton compte GitHub
 
-### 4.2 Clone Your Fork
+### 4.2 Cloner ton fork
 
-```bash
+```
 git clone https://github.com/YOUR-USERNAME/aws-group-yde.git
 cd aws-group-yde
 ```
 
-Replace `YOUR-USERNAME` with your actual GitHub username.
+Remplacer `YOUR-USERNAME` par ton vrai nom d’utilisateur GitHub.
 
-### 4.3 Update the Repository Reference
+### 4.3 Mettre à jour la référence du dépôt
 
-Open `infra/main.tf` and find line 635:
-```terraform
+Ouvrir `infra/main.tf` et trouver la ligne 635 :
+
+```
 FullRepositoryId     = "kouong/aws-group-yde"
 ```
 
-Change it to:
-```terraform
+Modifier en :
+
+```
 FullRepositoryId     = "YOUR-USERNAME/aws-group-yde"
 ```
 
-Save the file.
+Sauvegarder le fichier.
 
 ---
 
-## 🏗️ Step 5: Deploy Infrastructure to AWS
+## ️ Étape 5 : Déployer l’infrastructure sur AWS
 
-### 5.1 Initialize Terraform
+### 5.1 Initialiser Terraform
 
-Open PowerShell/Terminal in the project folder:
+Ouvrir PowerShell/Terminal dans le dossier du projet :
 
-```bash
+```
 cd infra
 terraform init
 ```
 
-This downloads necessary Terraform plugins. You should see "Terraform has been successfully initialized!"
+Cela télécharge les plugins Terraform nécessaires. Tu devrais voir : « Terraform has been successfully initialized! »
 
-### 5.2 Preview What Will Be Created
+### 5.2 Prévisualiser ce qui va être créé
 
-```bash
+```
 terraform plan
 ```
 
-This shows all the AWS resources that will be created. Review the output to see:
-- EC2 instance (your web server)
-- CodePipeline (automation pipeline)
-- CodeBuild (builds your app)
-- CodeDeploy (deploys your app)
-- IAM roles and security groups
+Cela affiche toutes les ressources AWS qui seront créées. Vérifie la sortie pour voir :
 
-### 5.3 Create AWS Resources
+* EC2 instance (ton serveur web)
+* CodePipeline (pipeline d’automatisation)
+* CodeBuild (build ton app)
+* CodeDeploy (déploie ton app)
+* rôles IAM et security groups
 
-```bash
+### 5.3 Créer les ressources AWS
+
+```
 terraform apply
 ```
 
-- Type `yes` when prompted
-- Wait 3-5 minutes for resources to be created
-- **IMPORTANT:** Copy the `ec2_public_ip` shown at the end (you'll need this later)
+* Taper `yes` quand demandé
+* Attendre 3–5 minutes que les ressources soient créées
+* **IMPORTANT :** copier `ec2_public_ip` affichée à la fin (tu en auras besoin plus tard)
 
 ---
 
-## 🔗 Step 6: Connect GitHub to AWS
+## Étape 6 : Connecter GitHub à AWS
 
-Terraform created a connection, but you must approve it manually.
+Terraform a créé une connexion, mais tu dois l’approuver manuellement.
 
-1. Go to AWS Console: https://console.aws.amazon.com
-2. Search for **CodePipeline** → **Settings** → **Connections**
-3. Find `12-weeks-aws-github-con-2025`
-4. Status will show **Pending**
-5. Click on it, then click **Update pending connection**
-6. Click **Install a new app** (or select existing GitHub app)
-7. Log in to GitHub if prompted
-8. Select your forked repository
-9. Click **Connect**
-10. Status should change to **Available** ✅
+1. Aller sur la console AWS : [https://console.aws.amazon.com](https://console.aws.amazon.com)
+2. Rechercher CodePipeline → Settings → Connections
+3. Trouver `12-weeks-aws-github-con-2025`
+4. Le statut affichera Pending
+5. Cliquer dessus, puis cliquer Update pending connection
+6. Cliquer Install a new app (ou sélectionner une GitHub app existante)
+7. Se connecter à GitHub si demandé
+8. Sélectionner ton dépôt forké
+9. Cliquer Connect
+10. Le statut doit passer à Available ✅
 
 ---
 
-## 🎉 Step 7: Test Your Pipeline
+## Étape 7 : Tester ton pipeline
 
-### 7.1 Trigger the Pipeline
+### 7.1 Déclencher le pipeline
 
-Make a small change to test automatic deployment:
+Faire un petit changement pour tester le déploiement automatique :
 
-```bash
+```
 cd ..
 git add frontend/app.py infra/main.tf
 git commit -m "Test pipeline"
 git push origin main
 ```
 
-### 7.2 Watch the Pipeline
+### 7.2 Suivre le pipeline
 
-1. Go to AWS Console → **CodePipeline**
-2. Click **12weeks-aws-workshop-pipeline-2025**
-3. Watch the three stages:
-   - **Source** (gets code from GitHub) - ~30 seconds
-   - **Build** (packages your app) - ~2-3 minutes
-   - **Deploy** (deploys to EC2) - ~2-3 minutes
+1. Aller sur AWS Console → CodePipeline
+2. Cliquer 12weeks-aws-workshop-pipeline-2025
+3. Observer les trois étapes :
 
-Total time: 5-7 minutes
+   * Source (récupère le code depuis GitHub) – ~30 secondes
+   * Build (package ton app) – ~2–3 minutes
+   * Deploy (déploie sur EC2) – ~2–3 minutes
 
-### 7.3 View Your Application
+Temps total : 5–7 minutes
 
-Once all stages show ✅ **Succeeded**:
+### 7.3 Voir ton application
 
-Open your browser and go to:
+Quand toutes les étapes affichent ✅ Succeeded :
+
+Ouvrir ton navigateur et aller sur :
+
 ```
 http://YOUR-EC2-PUBLIC-IP
 ```
 
-Replace `YOUR-EC2-PUBLIC-IP` with the IP from Step 5.3.
+Remplacer `YOUR-EC2-PUBLIC-IP` par l’IP de l’étape 5.3.
 
-You should see your Python Flask application! 🎊
+Tu devrais voir ton application Python Flask !
 
 ---
 
-## 🔄 Making Changes
+## Faire des modifications
 
-Every time you push code to GitHub, the pipeline automatically:
-1. Detects the change
-2. Builds your application
-3. Deploys to your EC2 server
+À chaque push sur GitHub, le pipeline automatiquement :
 
-Try it:
-```bash
+1. détecte le changement
+2. build ton application
+3. déploie sur ton serveur EC2
+
+Essaye :
+
+```
 # Edit frontend/app.py - change some text
 notepad frontend/app.py =>  search for the word "lightblue" and change it to another color. (eg. green)
 git add frontend/app.py
@@ -300,81 +325,90 @@ git commit -m "Update app"
 git push origin main
 ```
 
-***Important notes***
-1. If you see *** Please Tell me who you are. , just run the suggest commands as there are
+### Notes importantes
+
+1. Si tu vois `*** Please Tell me who you are.` , exécute juste les commandes suggérées car il y en a :
+
 ```
 git config --golbal user.email "you@example.com"
 git config --global user.name "Your Name"
 ```
 
-2. If there is a popup windows "CredentialHelperSelector", choose  "manager" and choose to login via Browser and then click "Select". You might then be asked to enter github username and password.
+2. S’il y a une popup Windows « CredentialHelperSelector », choisir « manager » et choisir de se connecter via Browser puis cliquer « Select ». On peut ensuite te demander le username et le mot de passe GitHub.
 
-Wait 5-7 minutes, then refresh your browser to see the changes!
+Attendre 5–7 minutes, puis rafraîchir le navigateur pour voir les changements !
 
 ---
 
-## 🧹 Cleaning Up (Delete Everything)
+## Nettoyage (tout supprimer)
 
-To avoid AWS charges, delete all resources when done:
+Pour éviter des frais AWS, supprimer toutes les ressources une fois terminé :
 
-```bash
+```
 cd infra
 terraform destroy
 ```
 
-Type `yes` when prompted. This removes everything from AWS.
+Taper `yes` quand demandé. Cela supprime tout sur AWS.
 
-Since the S3 bucket is not empty you will get an error message becaue the bucket must first be emptied before deletion. You can just go the aws console, empty the bucket and then delete the bucket.
-
----
-
-## 🐛 Troubleshooting
-
-### Issue: "terraform: command not found"
-- **Solution:** Restart your terminal after installing Terraform
-
-### Issue: "Error: No valid credential sources found"
-- **Solution:** Double-check Step 2.2. Make sure credentials are saved correctly
-
-### Issue: EC2 instance not accessible
-- **Solution:** Wait 2-3 minutes after deployment. EC2 needs time to install CodeDeploy agent
-
-### Issue: Pipeline fails at Deploy stage
-- **Solution:** 
-  1. Make sure you completed Step 6 (GitHub connection)
-  2. Check CodeDeploy logs in AWS Console
-
-### Issue: "A resource with that name already exists"
-- **Solution:** Someone else used the same S3 bucket name. Edit `infra/main.tf` line 339:
-  ```terraform
-  bucket = "12weeks-aws-workshop-2025-bucket-YOUR-INITIALS"
-  ```
+Comme le bucket S3 n’est pas vide, tu auras un message d’erreur parce que le bucket doit d’abord être vidé avant suppression. Tu peux aller dans la console AWS, vider le bucket puis supprimer le bucket.
 
 ---
 
-## 📚 What Gets Created in AWS
+## Dépannage
 
-| Resource | Purpose | Free Tier? |
-|----------|---------|------------|
-| EC2 Instance (t2.micro) | Your web server | ✅ Yes (750 hours/month) |
-| S3 Bucket | Stores deployment files | ✅ Yes (5GB) |
-| CodePipeline | Automates deployments | ❌ No ($1/month) |
-| CodeBuild | Builds your application | ✅ Yes (100 min/month) |
-| CodeDeploy | Deploys to EC2 | ✅ Yes (free for EC2) |
+### Problème : "terraform: command not found"
 
-**Estimated Cost:** $1-2/month (mostly CodePipeline)
+* Solution : redémarrer ton terminal après l’installation de Terraform
+
+### Problème : "Error: No valid credential sources found"
+
+* Solution : revérifier l’étape 2.2. S’assurer que les identifiants sont bien enregistrés
+
+### Problème : instance EC2 inaccessible
+
+* Solution : attendre 2–3 minutes après le déploiement. EC2 a besoin de temps pour installer l’agent CodeDeploy
+
+### Problème : le pipeline échoue à l’étape Deploy
+
+* Solution :
+
+  1. Vérifier que tu as bien terminé l’étape 6 (connexion GitHub)
+  2. Vérifier les logs CodeDeploy dans la console AWS
+
+### Problème : "A resource with that name already exists"
+
+* Solution : quelqu’un d’autre a utilisé le même nom de bucket S3. Modifier `infra/main.tf` ligne 339 :
+
+```
+bucket = "12weeks-aws-workshop-2025-bucket-YOUR-INITIALS"
+```
 
 ---
 
-## 🎓 Learn More
+## Ce qui est créé sur AWS
 
-- **Terraform Docs:** https://www.terraform.io/docs
-- **AWS CodePipeline:** https://aws.amazon.com/codepipeline/
-- **AWS Free Tier:** https://aws.amazon.com/free/
+| Ressource               | But                                | Free tier ?              |
+| ----------------------- | ---------------------------------- | ------------------------ |
+| EC2 Instance (t2.micro) | Ton serveur web                    | ✅ Oui (750 heures/mois)  |
+| S3 Bucket               | Stocke les fichiers de déploiement | ✅ Oui (5GB)              |
+| CodePipeline            | Automatise les déploiements        | ❌ Non ($1/mois)          |
+| CodeBuild               | Build ton application              | ✅ Oui (100 min/mois)     |
+| CodeDeploy              | Déploie sur EC2                    | ✅ Oui (gratuit pour EC2) |
+
+Coût estimé : $1–2/mois (principalement CodePipeline)
 
 ---
 
-## ✅ Architecture Overview
+## En savoir plus
+
+* Terraform Docs : [https://www.terraform.io/docs](https://www.terraform.io/docs)
+* AWS CodePipeline : [https://aws.amazon.com/codepipeline/](https://aws.amazon.com/codepipeline/)
+* AWS Free Tier : [https://aws.amazon.com/free/](https://aws.amazon.com/free/)
+
+---
+
+## ✅ Vue d’ensemble de l’architecture
 
 ```
 GitHub Repository
@@ -398,31 +432,32 @@ GitHub CodeBuild CodeDeploy
 
 ---
 
-## 📝 Project Structure
+## Structure du projet
 
 ```
 aws-group-yde/
-├── frontend/           # Your Python Flask application
-│   ├── app.py         # Main application file
-│   ├── appspec.yml    # Deployment instructions for CodeDeploy
-│   └── scripts/       # Deployment lifecycle scripts
-├── infra/             # Terraform infrastructure code
-│   ├── main.tf        # Main infrastructure definitions
-│   ├── output.tf      # Output values (like EC2 IP)
-│   └── variables.tf   # Configurable variables
-└── buildspec.yaml     # Build instructions for CodeBuild
+├── frontend/           # Ton application Python Flask
+│   ├── app.py         # Fichier principal de l’application
+│   ├── appspec.yml    # Instructions de déploiement pour CodeDeploy
+│   └── scripts/       # Scripts du cycle de vie de déploiement
+├── infra/             # Code Terraform de l’infrastructure
+│   ├── main.tf        # Définitions principales
+│   ├── output.tf      # Valeurs output (comme l’IP EC2)
+│   └── variables.tf   # Variables configurables
+└── buildspec.yaml     # Instructions de build pour CodeBuild
 ```
 
 ---
 
-## 🆘 Need Help?
+## Besoin d’aide ?
 
-If you get stuck:
-1. Check the Troubleshooting section above
-2. Review AWS CloudWatch logs for detailed error messages
-3. Make sure all prerequisites are installed correctly
-4. Verify your AWS credentials are configured properly
+Si tu bloques :
+
+1. Vérifie la section Dépannage ci-dessus
+2. Consulte les logs AWS CloudWatch pour des erreurs détaillées
+3. Assure-toi que tous les prérequis sont installés correctement
+4. Vérifie que tes identifiants AWS sont bien configurés
 
 ---
 
-**Happy Deploying! 🚀**
+Happy Deploying!
