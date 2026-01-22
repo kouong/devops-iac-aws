@@ -1,6 +1,6 @@
 # Guide de configuration d’un pipeline CI/CD AWS
 
-Ce guide va t’aider à déployer une application web Python sur AWS avec des déploiements automatiques depuis GitHub. À chaque fois que tu pushes du code sur GitHub, il va automatiquement builder et déployer sur ton serveur EC2.
+Ce guide va t’aider à déployer une application web Python sur AWS avec des déploiements automatiques depuis GitHub. À chaque fois que tu pushes du code sur GitHub, il va automatiquement compiler et déployer sur ton serveur EC2.
 
 ---
 
@@ -37,7 +37,7 @@ Terraform est l’outil qui crée automatiquement les ressources AWS.
 terraform version
 ```
 
-**Notes :** alternativement tu peux utiliser scoop pour installer terraform [https://scoop.sh/#/](https://scoop.sh/#/)
+**Notes :** alternativement tu peux utiliser scoop pour installer terraform [https://scoop.sh/#/](https://scoop.sh/#/)  **!!!Ceci n'est valable que sur Windows!!!!**
 
 **Mac :**
 
@@ -52,7 +52,7 @@ sudo apt-get update
 sudo apt-get install terraform
 ```
 
-**Notes !!! :** pour simplifier, je recommande d’utiliser scoop pour installer terraform et git (ou n’importe quoi sous Windows si disponible sur scoop) [https://scoop.sh/#/](https://scoop.sh/#/)
+**Notes !!! :** pour simplifier, je recommande d’utiliser scoop pour installer terraform et git (ou n’importe quoi sous Windows si disponible sur scoop) [https://scoop.sh/#/](https://scoop.sh/#/) **!!!Ceci n'est valable que sur Windows!!!!**
 
 ### 1.2 Installer Git (si pas déjà installé)
 
@@ -84,11 +84,11 @@ git --version
 
 1. Se connecter à la console AWS : [https://console.aws.amazon.com](https://console.aws.amazon.com)
 2. Cliquer sur ton nom d’utilisateur (en haut à droite) → Security credentials
-3. Descendre jusqu’à la section Access keys
-4. Cliquer Create access key
-5. Sélectionner Command Line Interface (CLI)
-6. Cocher la case de confirmation et cliquer Next
-7. Cliquer Create access key
+3. Descendre jusqu’à la section **Access keys**
+4. Cliquer **Create access key**
+5. Sélectionner **Command Line Interface (CLI)**
+6. Cocher la case de confirmation et cliquer **Next**
+7. Cliquer **Create access key**
 8. **IMPORTANT :** copier les deux :
 
    * Access key ID (ressemble à : `AKIAIOSFODNN7EXAMPLE`)
@@ -165,12 +165,12 @@ Cela te permet de te connecter à ton serveur si besoin.
 
 1. Aller sur la console AWS : [https://console.aws.amazon.com/ec2](https://console.aws.amazon.com/ec2)
 2. Vérifier que tu es dans la région **us-east-1** (regarder en haut à droite)
-3. Dans le menu de gauche, cliquer Key Pairs (sous « Network & Security »)
-4. Cliquer Create key pair
+3. Dans le menu de gauche, cliquer **Key Pairs** (sous « Network & Security »)
+4. Cliquer **Create key pair**
 5. Nommer : `ec2-key-pair`
-6. Type de paire de clés : RSA
+6. Type de paire de clés : **RSA**
 7. Format de clé privée : `.pem` (Mac/Linux) ou `.ppk` (Windows)
-8. Cliquer Create key pair
+8. Cliquer **Create key pair**
 9. Sauvegarder le fichier téléchargé dans un endroit sûr
 
 ---
@@ -254,15 +254,15 @@ terraform apply
 Terraform a créé une connexion, mais tu dois l’approuver manuellement.
 
 1. Aller sur la console AWS : [https://console.aws.amazon.com](https://console.aws.amazon.com)
-2. Rechercher CodePipeline → Settings → Connections
+2. Rechercher **CodePipeline → Settings → Connections**
 3. Trouver `12-weeks-aws-github-con-2025`
-4. Le statut affichera Pending
-5. Cliquer dessus, puis cliquer Update pending connection
-6. Cliquer Install a new app (ou sélectionner une GitHub app existante)
+4. Le statut affichera **Pending**
+5. Cliquer dessus, puis cliquer **Update pending connection**
+6. Cliquer **Install a new app** (ou sélectionner une GitHub app existante)
 7. Se connecter à GitHub si demandé
 8. Sélectionner ton dépôt forké
-9. Cliquer Connect
-10. Le statut doit passer à Available ✅
+9. Cliquer **Connect**
+10. Le statut doit passer à **Available** ✅
 
 ---
 
@@ -281,19 +281,19 @@ git push origin main
 
 ### 7.2 Suivre le pipeline
 
-1. Aller sur AWS Console → CodePipeline
-2. Cliquer 12weeks-aws-workshop-pipeline-2025
+1. Aller sur AWS Console → **CodePipeline**
+2. Cliquer **12weeks-aws-workshop-pipeline-2025**
 3. Observer les trois étapes :
 
-   * Source (récupère le code depuis GitHub) – ~30 secondes
-   * Build (package ton app) – ~2–3 minutes
-   * Deploy (déploie sur EC2) – ~2–3 minutes
+   * **Source** (récupère le code depuis GitHub) – ~30 secondes
+   * **Build** (package ton app) – ~2–3 minutes
+   * **Deploy** (déploie sur EC2) – ~2–3 minutes
 
 Temps total : 5–7 minutes
 
 ### 7.3 Voir ton application
 
-Quand toutes les étapes affichent ✅ Succeeded :
+Quand toutes les étapes affichent ✅ **Succeeded** :
 
 Ouvrir ton navigateur et aller sur :
 
@@ -355,7 +355,7 @@ Comme le bucket S3 n’est pas vide, tu auras un message d’erreur parce que le
 
 ---
 
-## Dépannage
+## Dépannage (en cas de problème)
 
 ### Problème : "terraform: command not found"
 
@@ -369,7 +369,7 @@ Comme le bucket S3 n’est pas vide, tu auras un message d’erreur parce que le
 
 * Solution : attendre 2–3 minutes après le déploiement. EC2 a besoin de temps pour installer l’agent CodeDeploy
 
-### Problème : le pipeline échoue à l’étape Deploy
+### Problème : le pipeline échoue à l’étape **Deploy**
 
 * Solution :
 
