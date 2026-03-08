@@ -548,7 +548,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         Action = [
           "codedeploy:GetDeploymentConfig"
         ]
-        Resource = "arn:aws:codedeploy:us-east-1:711387110440:deploymentconfig:*"
+        Resource = "arn:aws:codedeploy:us-east-1:241533143545:deploymentconfig:*"
       },
       {
         # Permission d’utiliser la connexion GitHub
