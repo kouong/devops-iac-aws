@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Change to the web application directory
+# Changer vers le répertoire de l'application web
 cd /home/ec2-user/simple-webapp
 
-# Start the Python web app in the background
-# nohup: keeps the process running even after logout
-# > app.log: redirects standard output to app.log file
-# 2>&1: redirects error messages to the same log file
-# &: runs the command in background
+# Démarrer l'application web Python en arrière-plan
+# nohup: garde le processus en cours d'exécution même après la déconnexion
+# > app.log: redirige la sortie standard vers le fichier app.log
+# 2>&1: redirige les messages d'erreur vers le même fichier journal
+# &: exécute la commande en arrière-plan
 nohup python3 app.py > app.log 2>&1 &

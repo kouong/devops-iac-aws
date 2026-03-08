@@ -98,7 +98,7 @@ git --version
 
 **Option A : utiliser le fichier AWS Credentials (RECOMMANDÉ)**
 
-1. Créer le dossier `.aws` dans ton répertoire utilisateur :
+1. Créer le dossier `.aws` dans ton répertoire utilisateur (si inexistant) :
 
    **Windows (PowerShell) :**
 
@@ -167,7 +167,7 @@ Cela te permet de te connecter à ton serveur si besoin.
 2. Vérifier que tu es dans la région **us-east-1** (regarder en haut à droite)
 3. Dans le menu de gauche, cliquer **Key Pairs** (sous « Network & Security »)
 4. Cliquer **Create key pair**
-5. Nommer : `ec2-key-pair`
+5. Nommer : `ec2-key-pair` (Tu peux choisir un nom de ton choix mais ce nom doit corresponde au nom utiliser lors de la creation de l'instance EC2 main.tf ligne 226 ->  key_name = "ec2-key-pair" )
 6. Type de paire de clés : **RSA**
 7. Format de clé privée : `.pem` (Mac/Linux) ou `.ppk` (Windows)
 8. Cliquer **Create key pair**
@@ -179,31 +179,31 @@ Cela te permet de te connecter à ton serveur si besoin.
 
 ### 4.1 Fork du dépôt
 
-1. Aller sur : [https://github.com/kouong/aws-group-yde](https://github.com/kouong/aws-group-yde)
+1. Aller sur : [https://github.com/kouong/devops-iac-aws](https://github.com/kouong/devops-iac-aws)
 2. Cliquer sur le bouton Fork (en haut à droite)
-3. Cela crée une copie dans ton compte GitHub
+3. Cela crée une copie de ce depôt dans ton compte GitHub
 
 ### 4.2 Cloner ton fork
 
 ```
-git clone https://github.com/YOUR-USERNAME/aws-group-yde.git
-cd aws-group-yde
+git clone https://github.com/YOUR-USERNAME/devops-iac-aws.git
+cd devops-iac-aws
 ```
 
-Remplacer `YOUR-USERNAME` par ton vrai nom d’utilisateur GitHub.
+Remplacer `YOUR-USERNAME` par ton vrai nom d’utilisateur GitHub (le compte GitHub doit exister).
 
 ### 4.3 Mettre à jour la référence du dépôt
 
 Ouvrir `infra/main.tf` et trouver la ligne 635 :
 
 ```
-FullRepositoryId     = "kouong/aws-group-yde"
+FullRepositoryId     = "kouong/devops-iac-aws"
 ```
 
 Modifier en :
 
 ```
-FullRepositoryId     = "YOUR-USERNAME/aws-group-yde"
+FullRepositoryId     = "YOUR-USERNAME/devops-iac-aws"
 ```
 
 Sauvegarder le fichier.
@@ -255,7 +255,7 @@ Terraform a créé une connexion, mais tu dois l’approuver manuellement.
 
 1. Aller sur la console AWS : [https://console.aws.amazon.com](https://console.aws.amazon.com)
 2. Rechercher **CodePipeline → Settings → Connections**
-3. Trouver `12-weeks-aws-github-con-2025`
+3. Trouver `aws-workshop-github-con`
 4. Le statut affichera **Pending**
 5. Cliquer dessus, puis cliquer **Update pending connection**
 6. Cliquer **Install a new app** (ou sélectionner une GitHub app existante)
@@ -282,7 +282,7 @@ git push origin main
 ### 7.2 Suivre le pipeline
 
 1. Aller sur AWS Console → **CodePipeline**
-2. Cliquer **12weeks-aws-workshop-pipeline-2025**
+2. Cliquer **aws-workshop-pipeline**
 3. Observer les trois étapes :
 
    * **Source** (récupère le code depuis GitHub) – ~30 secondes
@@ -435,7 +435,7 @@ GitHub CodeBuild CodeDeploy
 ## Structure du projet
 
 ```
-aws-group-yde/
+devops-iac-aws/
 ├── frontend/           # Ton application Python Flask
 │   ├── app.py         # Fichier principal de l’application
 │   ├── appspec.yml    # Instructions de déploiement pour CodeDeploy

@@ -1,8 +1,8 @@
 #!/bin/bash
-# This script installs dependencies needed for a Flask web application
+# Ce script installe les dépendances nécessaires pour une application web Flask
 
-# Install Python 3 and pip package manager using yum (for Amazon Linux/RHEL/CentOS)
+# Installer Python 3 et le gestionnaire de paquets pip en utilisant yum (pour Amazon Linux/RHEL/CentOS)
 yum install -y python3-pip
 
-# Install Flask web framework using pip3
+# Installer le framework web Flask en utilisant pip3
 pip3 install flask

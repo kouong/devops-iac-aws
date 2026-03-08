@@ -1,5 +1,5 @@
 #!/bin/bash
 
-# Kill any running processes that match "app.py" in their command line
-# The "|| true" ensures the script doesn't fail if no matching processes are found
+# Arrêter tous les processus en cours d'exécution qui correspondent à "app.py" dans leur ligne de commande
+# Le "|| true" assure que le script n'échoue pas si aucun processus correspondant n'est trouvé
 pkill -f app.py || true

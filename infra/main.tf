@@ -21,7 +21,7 @@ provider "aws" {
 # Il peut lire les configurations de déploiement et mettre à jour les instances EC2
 
 resource "aws_iam_role" "codedeploy_role" {
-  name = "12weeks-aws-workshop-codedeploy-role-2025"
+  name = "aws-workshop-codedeploy-role"
 
   # Cette politique permet au service CodeDeploy d’assumer (utiliser) ce rôle
   assume_role_policy = jsonencode({
@@ -36,12 +36,12 @@ resource "aws_iam_role" "codedeploy_role" {
   })
 
   tags = {
-    Name        = "12weeks-aws-workshop-codedeploy-role-2025"
+    Name        = "aws-workshop-codedeploy-role"
     Environment = "Workshop"
   }
 }
 
-# Attacher la politique AWS gérée qui donne à CodeDeploy les permissions nécessaires
+# Attacher la politique gérée par AWS qui donne à CodeDeploy les permissions nécessaires
 # Cette politique permet à CodeDeploy de lire les Auto Scaling groups, les instances EC2 et les tags
 resource "aws_iam_role_policy_attachment" "codedeploy_policy" {
   role       = aws_iam_role.codedeploy_role.name
@@ -61,7 +61,7 @@ resource "aws_iam_role_policy_attachment" "codedeploy_policy" {
 # Sans cela, l’instance ne peut pas télécharger les packages de déploiement depuis S3
 
 resource "aws_iam_role" "ec2_role" {
-  name = "12weeks-aws-workshop-ec2-role-2025"
+  name = "aws-workshop-ec2-role"
 
   # Cette politique permet au service EC2 d’assumer (utiliser) ce rôle
   assume_role_policy = jsonencode({
@@ -76,7 +76,7 @@ resource "aws_iam_role" "ec2_role" {
   })
 
   tags = {
-    Name        = "12weeks-aws-workshop-ec2-role-2025"
+    Name        = "aws-workshop-ec2-role"
     Environment = "Workshop"
   }
 }
@@ -99,10 +99,10 @@ resource "aws_iam_role_policy_attachment" "ec2_codedeploy_policy" {
 # PROFIL D’INSTANCE POUR EC2
 # ----------------------------------------------------------------------------
 # Le profil d’instance est un conteneur pour le rôle IAM qui peut être attaché à une instance EC2
-# EC2 utilise cela pour obtenir des credentials AWS temporaires
+# EC2 utilise cela pour obtenir des identifiants (credentials) AWS temporaires
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "12weeks-aws-workshop-ec2-profile-2025"
+  name = "aws-workshop-ec2-profile"
   role = aws_iam_role.ec2_role.name
 }
 
@@ -117,7 +117,7 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name        = "12weeks-aws-workshop-vpc-2025"
+    Name        = "aws-workshop-vpc"
     Environment = "Workshop"
   }
 }
@@ -126,7 +126,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name        = "12weeks-aws-workshop-igw-2025"
+    Name        = "aws-workshop-igw"
     Environment = "Workshop"
   }
 }
@@ -138,7 +138,7 @@ resource "aws_subnet" "main" {
   availability_zone       = "us-east-1a"
 
   tags = {
-    Name        = "12weeks-aws-workshop-subnet-2025"
+    Name        = "aws-workshop-subnet"
     Environment = "Workshop"
   }
 }
@@ -152,7 +152,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name        = "12weeks-aws-workshop-rt-2025"
+    Name        = "aws-workshop-rt"
     Environment = "Workshop"
   }
 }
@@ -174,8 +174,9 @@ resource "aws_route_table_association" "public" {
 # - Sortant : tout le trafic (pour que l’EC2 puisse télécharger les mises à jour et l’agent CodeDeploy)
 
 resource "aws_security_group" "ec2_sg" {
-  name        = "12weeks-aws-workshop-sg-2025"
+  name        = "aws-workshop-sg"
   description = "Security group for 12 Weeks AWS Workshop EC2 instance"
+  vpc_id = aws_vpc.main.id
 
   # RÈGLE ENTRANTE : autoriser le trafic HTTP depuis n’importe où
   # Cela permet à n’importe qui sur Internet d’accéder à ton application web sur le port 80
@@ -201,7 +202,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   tags = {
-    Name        = "12weeks-aws-workshop-sg-2025"
+    Name        = "aws-workshop-sg"
     Environment = "Workshop"
   }
 }
@@ -227,7 +228,7 @@ resource "aws_instance" "web" {
 
   # Tags aident à identifier et organiser tes ressources
   tags = {
-    Name        = "12weeks-aws-workshop-2025"
+    Name        = "aws-workshop"
     Environment = "Workshop"
   }
 
@@ -269,7 +270,7 @@ resource "aws_instance" "web" {
 # Application CodeDeploy qui représente ton application côté AWS
 
 resource "aws_codedeploy_app" "web_app" {
-  name = "12weeks-aws-workshop-app-2025"
+  name = "aws-workshop-app"
 
   compute_platform = "Server"
 }
@@ -283,7 +284,7 @@ resource "aws_codedeploy_app" "web_app" {
 # ----------------------------------------------------------------------------
 # CONFIGURATION DU GROUPE DE DÉPLOIEMENT
 # ----------------------------------------------------------------------------
-# Ce groupe cible les instances EC2 avec le tag "Name: 12weeks-aws-workshop-2025"
+# Ce groupe cible les instances EC2 avec le tag "Name: aws-workshop"
 # Quand CodeDeploy s’exécute, il déploiera sur toutes les instances correspondant à ce tag
 
 resource "aws_codedeploy_deployment_group" "web_deploy_group" {
@@ -291,7 +292,7 @@ resource "aws_codedeploy_deployment_group" "web_deploy_group" {
   app_name = aws_codedeploy_app.web_app.name
 
   # Nom de ce groupe de déploiement
-  deployment_group_name = "12weeks-aws-workshop-deploy-group-2025"
+  deployment_group_name = "aws-workshop-deploy-group"
 
   # Rôle IAM que CodeDeploy utilise pour exécuter le déploiement
   service_role_arn = aws_iam_role.codedeploy_role.arn
@@ -303,12 +304,12 @@ resource "aws_codedeploy_deployment_group" "web_deploy_group" {
     ec2_tag_filter {
       key   = "Name"                      # Clé de tag à faire correspondre
       type  = "KEY_AND_VALUE"             # Faire correspondre clé et valeur
-      value = "12weeks-aws-workshop-2025" # Valeur de tag à faire correspondre
+      value = "aws-workshop" # Valeur de tag à faire correspondre
     }
   }
 
   tags = {
-    Name        = "12weeks-aws-workshop-deploy-group-2025"
+    Name        = "aws-workshop-deploy-group"
     Environment = "Workshop"
   }
 }
@@ -320,10 +321,10 @@ resource "aws_codedeploy_deployment_group" "web_deploy_group" {
 # Le nom du bucket doit être globalement unique sur TOUS les comptes AWS
 
 resource "aws_s3_bucket" "pipeline_artifacts" {
-  bucket = "12weeks-aws-workshop-2025-bucket-YOUR-INITIALS"
+  bucket = "aws-workshop-bucket-gerard-123"
 
   tags = {
-    Name        = "12weeks-aws-workshop-2025-bucket"
+    Name        = "aws-workshop-bucket"
     Environment = "Workshop"
   }
 }
@@ -334,7 +335,7 @@ resource "aws_s3_bucket" "pipeline_artifacts" {
 # Cette connexion permet à CodePipeline d’accéder à ton dépôt GitHub
 
 resource "aws_codestarconnections_connection" "github" {
-  name          = "12-weeks-aws-github-con-2025"
+  name          = "aws-workshop-github-con"
   provider_type = "GitHub"
 }
 
@@ -348,7 +349,7 @@ resource "aws_codestarconnections_connection" "github" {
 # CodeBuild a besoin d’autorisations pour écrire des logs, accéder à S3 et exécuter les builds
 
 resource "aws_iam_role" "codebuild_role" {
-  name = "12weeks-aws-workshop-codebuild-role-2025"
+  name = "aws-workshop-codebuild-role"
 
   # Cette politique permet au service CodeBuild d’assumer (utiliser) ce rôle
   assume_role_policy = jsonencode({
@@ -364,7 +365,7 @@ resource "aws_iam_role" "codebuild_role" {
   })
 
   tags = {
-    Name        = "12weeks-aws-workshop-codebuild-role-2025"
+    Name        = "aws-workshop-codebuild-role"
     Environment = "Workshop"
   }
 }
@@ -372,7 +373,7 @@ resource "aws_iam_role" "codebuild_role" {
 # Définir quelles permissions CodeBuild a quand il utilise le rôle ci-dessus
 resource "aws_iam_role_policy" "codebuild_policy" {
   role = aws_iam_role.codebuild_role.name
-  name = "12weeks-aws-workshop-codebuild-policy-2025"
+  name = "aws-workshop-codebuild-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -387,8 +388,8 @@ resource "aws_iam_role_policy" "codebuild_policy" {
           "logs:PutLogEvents"
         ]
         Resource = [
-          "arn:aws:logs:us-east-1:*:log-group:/aws/codebuild/12weeks-aws-workshop-project-2025",
-          "arn:aws:logs:us-east-1:*:log-group:/aws/codebuild/12weeks-aws-workshop-project-2025:*"
+          "arn:aws:logs:us-east-1:*:log-group:/aws/codebuild/aws-workshop-project",
+          "arn:aws:logs:us-east-1:*:log-group:/aws/codebuild/aws-workshop-project:*"
         ]
       },
       {
@@ -411,7 +412,7 @@ resource "aws_iam_role_policy" "codebuild_policy" {
 # Ce projet exécute les commandes de build décrites dans buildspec.yaml
 
 resource "aws_codebuild_project" "build_project" {
-  name         = "12weeks-aws-workshop-project-2025"
+  name         = "aws-workshop-project"
   service_role = aws_iam_role.codebuild_role.arn
 
   artifacts {
@@ -432,7 +433,7 @@ resource "aws_codebuild_project" "build_project" {
 
   logs_config {
     cloudwatch_logs {
-      group_name = "/aws/codebuild/12weeks-aws-workshop-project-2025"
+      group_name = "/aws/codebuild/aws-workshop-project"
     }
   }
 
@@ -441,7 +442,7 @@ resource "aws_codebuild_project" "build_project" {
   }
 
   tags = {
-    Name        = "12weeks-aws-workshop-project-2025"
+    Name        = "aws-workshop-project"
     Environment = "Workshop"
   }
 }
@@ -452,11 +453,11 @@ resource "aws_codebuild_project" "build_project" {
 # Configure où les logs de build sont stockés
 
 resource "aws_cloudwatch_log_group" "codebuild_log_group" {
-  name              = "/aws/codebuild/12weeks-aws-workshop-project-2025"
+  name              = "/aws/codebuild/aws-workshop-project"
   retention_in_days = 7 # Les logs plus vieux que 7 jours sont automatiquement supprimés
 
   tags = {
-    Name        = "12weeks-aws-workshop-codebuild-logs"
+    Name        = "aws-workshop-codebuild-logs"
     Environment = "Workshop"
   }
 }
@@ -468,7 +469,7 @@ resource "aws_cloudwatch_log_group" "codebuild_log_group" {
 # Ce rôle lui permet d’interagir avec S3, CodeBuild, CodeDeploy et GitHub
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "12weeks-aws-workshop-codepipeline-role-2025"
+  name = "aws-workshop-codepipeline-role"
 
   # Autoriser le service CodePipeline à utiliser ce rôle
   assume_role_policy = jsonencode({
@@ -484,7 +485,7 @@ resource "aws_iam_role" "codepipeline_role" {
   })
 
   tags = {
-    Name        = "12weeks-aws-workshop-codepipeline-role-2025"
+    Name        = "aws-workshop-codepipeline-role"
     Environment = "Workshop"
   }
 }
@@ -492,7 +493,7 @@ resource "aws_iam_role" "codepipeline_role" {
 # Définir quelles permissions CodePipeline a
 resource "aws_iam_role_policy" "codepipeline_policy" {
   role = aws_iam_role.codepipeline_role.name
-  name = "12weeks-aws-workshop-codepipeline-policy-2025"
+  name = "aws-workshop-codepipeline-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -570,7 +571,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 # Chaque « stage » représente une étape du processus
 
 resource "aws_codepipeline" "pipeline" {
-  name     = "12weeks-aws-workshop-pipeline-2025"
+  name     = "aws-workshop-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
 
   # Définir où stocker les artefacts entre les étapes
@@ -582,7 +583,7 @@ resource "aws_codepipeline" "pipeline" {
   # STAGE 1 : SOURCE
   # -------------------------
   # Cette étape surveille ton dépôt GitHub pour des changements
-  # Quand tu pushes du code sur la branche 'main', cela déclenche le pipeline
+  # Quand tu push du code sur la branche 'main', cela déclenche le pipeline
   stage {
     name = "Source"
 
@@ -606,7 +607,7 @@ resource "aws_codepipeline" "pipeline" {
   # -------------------------
   # STAGE 2 : BUILD
   # -------------------------
-  # Cette étape prend ton code source et le build
+  # Cette étape prend ton code source et le compile
   # Il exécute les commandes définies dans ton fichier buildspec.yaml
   stage {
     name = "Build"
@@ -629,7 +630,7 @@ resource "aws_codepipeline" "pipeline" {
   # -------------------------
   # STAGE 3 : DEPLOY
   # -------------------------
-  # Cette étape déploie ton application buildée sur l’instance EC2
+  # Cette étape déploie ton application compilée sur l’instance EC2
   # Elle utilise CodeDeploy et suit les instructions dans appspec.yml
   stage {
     name = "Deploy"

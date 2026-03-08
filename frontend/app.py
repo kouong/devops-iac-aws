@@ -1,8 +1,8 @@
 """
-A simple Flask web application for AWS deployment demonstration.
+Une simple application Flask pour la démonstration du déploiement AWS.
 
-This application provides a basic landing page that can be used to verify
-successful deployment to EC2 instances via AWS CodeDeploy.
+Cette application fournit une page d'accueil basique qui peut être utilisée pour vérifier
+le déploiement réussi sur les instances EC2 via AWS CodeDeploy.
 """
 
 from flask import Flask
@@ -11,38 +11,38 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     """
-    Home route handler that serves the main landing page of the web application.
+    Gestionnaire de route d'accueil qui sert la page d'accueil principale de l'application web.
 
-    This function is a Flask route handler that responds to HTTP GET requests 
-    to the root URL ("/"). It returns a simple HTML response containing a 
-    greeting message and version information, styled with a light blue background.
+    Cette fonction est un gestionnaire de route Flask qui répond aux requêtes HTTP GET 
+    à l'URL racine ("/"). Elle retourne une réponse HTML simple contenant un 
+    message de bienvenue et des informations de version, stylisées avec un fond bleu clair.
 
     Returns:
-        str: An HTML string containing a heading with a greeting message, 
-             a paragraph showing the current version number, and CSS styling 
-             that sets the background color to light blue. The message 
-             indicates the application is running on EC2 and was deployed 
-             using AWS CodeDeploy.
+        str: Une chaîne de caractères HTML contenant un en-tête avec un message de bienvenue, 
+             un paragraphe affichant le numéro de version actuel, et le style CSS 
+             qui définit la couleur de fond en bleu clair. Le message 
+             indique que l'application s'exécute sur EC2 et a été déployée 
+             en utilisant AWS CodeDeploy.
 
     Note:
-        This is typically used as a health check endpoint or simple landing 
-        page to verify that the web application is running correctly after 
-        deployment. The page is visually styled with a light blue background.
+        Ceci est généralement utilisé comme point de terminaison de vérification d'intégrité ou page d'accueil 
+        simple pour vérifier que l'application web s'exécute correctement après 
+        le déploiement. La page est stylisée visuellement avec un fond bleu clair.
     """
     return """
     <html>
     <head>
         <style>
             body {
-                background-color: green;
+                background-color: lightblue;
                 font-family: Arial, sans-serif;
                 padding: 20px;
             }
         </style>
     </head>
     <body>
-        <h1>Welcome to the 12-Week AWS Workshop Challenge!</h1>
-        <p>Version 2</p>
+        <h1>Bienvenu au Webinaire de AWS Users Group Congo Brazzaville!</h1>
+        <p>Version 1</p>
     </body>
     </html>
     """
