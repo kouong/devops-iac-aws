@@ -214,7 +214,7 @@ resource "aws_security_group" "ec2_sg" {
 # Elle installe l’agent CodeDeploy requis pour les déploiements
 
 resource "aws_instance" "web" {
-  ami                    = "ami-0e001c9271cf7f3b9" # AMI : Amazon Linux 2023 (inclut yum)
+  ami                    = "ami-02dfbd4ff395f2a1b" # AMI : Amazon Linux 2023 (inclut yum)
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
