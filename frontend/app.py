@@ -34,7 +34,7 @@ def home():
     <head>
         <style>
             body {
-                background-color: lightblue;
+                background-color: green;
                 font-family: Arial, sans-serif;
                 padding: 20px;
             }
